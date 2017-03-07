@@ -5,3 +5,5 @@ parameters:
 	excludes_analyse:
 		- %projectDir%/tests/
 		- %projectDir%/vendor/
+	ignoreErrors:
+		- '#.*Redis::.*#'
