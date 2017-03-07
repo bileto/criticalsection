@@ -6,13 +6,13 @@ declare(strict_types=1);
  * @testCase
  */
 
-namespace stekycz\CriticalSection\tests;
+namespace stekycz\CriticalSection\tests\Driver;
 
 use stekycz\CriticalSection\Driver\FileCriticalSection;
 use TestCase;
 use Tester\Assert;
 
-require_once(__DIR__ . "/bootstrap.php");
+require_once(__DIR__ . '/../bootstrap.php');
 
 class FileCriticalSectionTest extends TestCase
 {
