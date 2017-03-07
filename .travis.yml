@@ -13,6 +13,7 @@ before_install:
 
 install:
   - composer install --no-interaction --optimize-autoloader
+  - tests/travis.phpredis.sh
 
 before_script:
   - ./vendor/bin/parallel-lint -e php,phpt --exclude vendor .
