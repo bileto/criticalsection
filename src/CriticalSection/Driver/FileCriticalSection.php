@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace stekycz\CriticalSection\Driver;
 
-use RuntimeException;
 use stekycz\CriticalSection\CriticalSection;
+use stekycz\CriticalSection\Exception\CriticalSectionException;
 
 class FileCriticalSection extends CriticalSection
 {
@@ -66,7 +66,7 @@ class FileCriticalSection extends CriticalSection
 	private static function createDir(string $dir)
 	{
 		if (!is_dir($dir) && !@mkdir($dir, 0777, TRUE) && !is_dir($dir)) { // @ - dir may already exist
-			throw new RuntimeException("Unable to create directory '$dir'. " . error_get_last()['message']);
+			throw new CriticalSectionException("Unable to create directory '$dir'. " . error_get_last()['message']);
 		}
 	}
 
