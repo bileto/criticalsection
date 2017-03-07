@@ -12,6 +12,13 @@ abstract class CriticalSection implements ICriticalSection
 	 */
 	private $locks = [];
 
+	public function __destruct()
+	{
+		foreach ($this->locks as $label => $isLocked) {
+			$this->leave($label);
+		}
+	}
+
 	final public function enter(string $label) : bool
 	{
 		if ($this->isEntered($label)) {
