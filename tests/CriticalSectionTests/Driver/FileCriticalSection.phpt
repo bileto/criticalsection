@@ -39,11 +39,11 @@ class FileCriticalSectionTest extends TestCase
 
 	protected function tearDown()
 	{
-		parent::tearDown();
 		if ($this->criticalSection->isEntered(self::TEST_LABEL)) {
 			$this->criticalSection->leave(self::TEST_LABEL);
 		}
 		system('rm -rf ' . escapeshellarg($this->filesDir));
+		parent::tearDown();
 	}
 
 	public function testCanBeEnteredAndLeaved()
