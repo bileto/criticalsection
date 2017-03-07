@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace stekycz\CriticalSection\tests\Driver;
 
 use stekycz\CriticalSection\Driver\FileCriticalSection;
+use stekycz\CriticalSection\Exception\CriticalSectionException;
 use TestCase;
 use Tester\Assert;
 
@@ -32,7 +33,7 @@ class FileCriticalSectionTest extends TestCase
 	protected function setUp()
 	{
 		parent::setUp();
-		$this->filesDir = TEMP_DIR . "/critical-section";
+		$this->filesDir = TEMP_DIR . '/critical-section';
 		mkdir($this->filesDir, 0777, TRUE);
 		$this->criticalSection = new FileCriticalSection($this->filesDir);
 	}
@@ -91,6 +92,16 @@ class FileCriticalSectionTest extends TestCase
 		Assert::false($criticalSection2->leave(self::TEST_LABEL));
 		Assert::false($criticalSection->isEntered(self::TEST_LABEL));
 		Assert::false($criticalSection2->isEntered(self::TEST_LABEL));
+	}
+
+	public function testCannotCreateDirectory()
+	{
+		$path = TEMP_DIR . '/file';
+		touch($path);
+		Assert::exception(function () use ($path) {
+			new FileCriticalSection($path);
+		}, CriticalSectionException::class);
+		unlink($path);
 	}
 
 }

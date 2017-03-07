@@ -39,13 +39,13 @@ class RedisCriticalSection extends CriticalSection
 				->rPush($lockKey, self::LOCK_VALUE)
 				->exec();
 			if ($multiResult[1] === FALSE) {
-				throw new CriticalSectionException('Cannot initialize redis critical section for key "' . $lockKey . '".');
+				throw new CriticalSectionException('Cannot initialize redis critical section on first enter for "' . $label . '".');
 			}
 		}
 		try {
 			$result = $this->redis->blPop($lockKey, $this->acquireTimeout);
 		} catch (Throwable $e) {
-			throw new CriticalSectionException('Could not acquire redis critical section lock.', 0, $e);
+			throw new CriticalSectionException('Could not acquire redis critical section lock for "' . $label . '".', 0, $e);
 		}
 		if (!$result) {
 			return FALSE;

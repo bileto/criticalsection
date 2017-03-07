@@ -8,9 +8,11 @@ declare(strict_types=1);
 
 namespace stekycz\CriticalSection\tests\Driver;
 
+use Exception;
 use Mockery;
 use Redis;
 use stekycz\CriticalSection\Driver\RedisCriticalSection;
+use stekycz\CriticalSection\Exception\CriticalSectionException;
 use TestCase;
 use Tester\Assert;
 
@@ -125,6 +127,33 @@ class RedisCriticalSectionTest extends TestCase
 		Assert::false($criticalSection2->leave(self::TEST_LABEL));
 		Assert::false($criticalSection->isEntered(self::TEST_LABEL));
 		Assert::false($criticalSection2->isEntered(self::TEST_LABEL));
+	}
+
+	public function testCannotInitializeCriticalSectionOnFirstEnter()
+	{
+		$this->redis->shouldReceive('sAdd')->once()->andReturn(1);
+		$this->redis->shouldReceive('multi')->once()->andReturnSelf();
+		$this->redis->shouldReceive('del')->once()->andReturnSelf();
+		$this->redis->shouldReceive('rPush')->once()->andReturnSelf();
+		$this->redis->shouldReceive('exec')->once()->andReturn([0, FALSE]);
+
+		Assert::exception(function () {
+			$this->criticalSection->enter(self::TEST_LABEL);
+		}, CriticalSectionException::class,'Cannot initialize redis critical section on first enter for "' . self::TEST_LABEL . '".');
+	}
+
+	public function testExceptionOnLockAcquire()
+	{
+		$this->redis->shouldReceive('sAdd')->once()->andReturn(1);
+		$this->redis->shouldReceive('multi')->once()->andReturnSelf();
+		$this->redis->shouldReceive('del')->once()->andReturnSelf();
+		$this->redis->shouldReceive('rPush')->once()->andReturnSelf();
+		$this->redis->shouldReceive('exec')->once()->andReturn([0, 1]);
+		$this->redis->shouldReceive('blPop')->once()->andThrow(Exception::class);
+
+		Assert::exception(function () {
+			$this->criticalSection->enter(self::TEST_LABEL);
+		}, CriticalSectionException::class, 'Could not acquire redis critical section lock for "' . self::TEST_LABEL . '".');
 	}
 
 }
