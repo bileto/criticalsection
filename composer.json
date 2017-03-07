@@ -1,0 +1,33 @@
+{
+	"name": "stekycz/critical-section",
+	"type": "library",
+	"description": "Lightweight class supporting critical section locking",
+	"keywords": ["parallel", "critical-section", "locks"],
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Martin Štekl",
+			"email": "martin.stekl@gmail.com",
+			"role": "Developer"
+		}
+	],
+	"support": {
+		"email": "martin.stekl@gmail.com",
+		"issues": "https://github.com/stekycz/CriticalSection/issues",
+		"source": "https://github.com/stekycz/CriticalSection"
+	},
+	"require": {
+		"php": ">=7.0.0"
+	},
+	"require-dev": {
+		"nette/tester": "^1.7",
+		"jakub-onderka/php-parallel-lint": "^0.9",
+		"mockery/mockery": "^0.9",
+		"phpstan/phpstan": "^0.6"
+	},
+	"autoload": {
+		"psr-4": {
+			"stekycz\\": "src"
+		}
+	}
+}
