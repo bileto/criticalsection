@@ -4,28 +4,58 @@ declare(strict_types=1);
 
 namespace stekycz\CriticalSection;
 
-abstract class CriticalSection implements ICriticalSection
+use stekycz\CriticalSection\Driver\IDriver;
+use stekycz\CriticalSection\Exception\RuntimeException;
+use Throwable;
+
+final class CriticalSection implements ICriticalSection
 {
+
+	/**
+	 * @var IDriver
+	 */
+	private $driver;
 
 	/**
 	 * @var bool[]
 	 */
 	private $locks = [];
 
+	public function __construct(IDriver $driver)
+	{
+		$this->driver = $driver;
+	}
+
 	public function __destruct()
 	{
+		/** @var Throwable[] $exceptions */
+		$exceptions = [];
 		foreach ($this->locks as $label => $isLocked) {
-			$this->leave($label);
+			try {
+				$this->leave($label);
+			} catch (Throwable $e) {
+				$exceptions[] = $e;
+			}
+		}
+
+		if (count($exceptions) === 1) {
+			throw $exceptions[0];
+		} elseif (count($exceptions) > 1) {
+			$messages = '';
+			foreach ($exceptions as $index => $e) {
+				$messages .= $index . ': ' . $e->getMessage() . "\n";
+			}
+			throw new RuntimeException('Thrown too many exceptions during destruction of CriticalSection. Messages:' . "\n" . $messages);
 		}
 	}
 
-	final public function enter(string $label) : bool
+	public function enter(string $label) : bool
 	{
 		if ($this->isEntered($label)) {
 			return FALSE;
 		}
 
-		$result = $this->acquireLock($label);
+		$result = $this->driver->acquireLock($label);
 		if ($result) {
 			$this->locks[$label] = $result;
 		}
@@ -33,13 +63,13 @@ abstract class CriticalSection implements ICriticalSection
 		return $result;
 	}
 
-	final public function leave(string $label) : bool
+	public function leave(string $label) : bool
 	{
 		if (!$this->isEntered($label)) {
 			return FALSE;
 		}
 
-		$result = $this->releaseLock($label);
+		$result = $this->driver->releaseLock($label);
 		if ($result) {
 			unset($this->locks[$label]);
 		}
@@ -47,13 +77,9 @@ abstract class CriticalSection implements ICriticalSection
 		return $result;
 	}
 
-	final public function isEntered(string $label) : bool
+	public function isEntered(string $label) : bool
 	{
 		return array_key_exists($label, $this->locks) && $this->locks[$label] === TRUE;
 	}
-
-	abstract protected function acquireLock(string $label) : bool;
-
-	abstract protected function releaseLock(string $label) : bool;
 
 }

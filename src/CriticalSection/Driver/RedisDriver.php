@@ -1,13 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace stekycz\CriticalSection\Driver;
 
 use Redis;
-use stekycz\CriticalSection\CriticalSection;
 use stekycz\CriticalSection\Exception\CriticalSectionException;
 use Throwable;
 
-class RedisCriticalSection extends CriticalSection
+class RedisDriver implements IDriver
 {
 
 	const LOCK_VALUE = 1;
@@ -28,7 +29,7 @@ class RedisCriticalSection extends CriticalSection
 		$this->acquireTimeout = $acquireTimeout;
 	}
 
-	protected function acquireLock(string $label) : bool
+	public function acquireLock(string $label) : bool
 	{
 		$lockKey = self::formatLock($label);
 
@@ -54,7 +55,7 @@ class RedisCriticalSection extends CriticalSection
 		return TRUE;
 	}
 
-	protected function releaseLock(string $label) : bool
+	public function releaseLock(string $label) : bool
 	{
 		$lockKey = self::formatLock($label);
 		$result = $this->redis->rPush($lockKey, self::LOCK_VALUE);

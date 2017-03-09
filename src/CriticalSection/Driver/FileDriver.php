@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace stekycz\CriticalSection\Driver;
 
-use stekycz\CriticalSection\CriticalSection;
 use stekycz\CriticalSection\Exception\CriticalSectionException;
 
-class FileCriticalSection extends CriticalSection
+class FileDriver implements IDriver
 {
 
 	/**
@@ -27,7 +26,7 @@ class FileCriticalSection extends CriticalSection
 		$this->lockFilesDir = $lockFilesDir;
 	}
 
-	protected function acquireLock(string $label) : bool
+	public function acquireLock(string $label) : bool
 	{
 		$handle = fopen($this->getFilePath($label), "w+b");
 		if ($handle === FALSE) {
@@ -46,7 +45,7 @@ class FileCriticalSection extends CriticalSection
 		return TRUE;
 	}
 
-	protected function releaseLock(string $label) : bool
+	public function releaseLock(string $label) : bool
 	{
 		$unlocked = flock($this->handles[$label], LOCK_UN);
 		if ($unlocked === FALSE) {
