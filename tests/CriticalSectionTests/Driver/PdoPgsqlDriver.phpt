@@ -62,22 +62,6 @@ class PdoPgsqlDriverTest extends TestCase
 		Assert::true($this->driver->releaseLock(self::TEST_LABEL));
 	}
 
-	public function testCanAcquireAndReleaseMultipleTimesWithOnlyOneInitialization()
-	{
-		$statement = Mockery::mock(PDOStatement::class);
-		$statement->shouldReceive('execute')->times(6)->andReturn(TRUE);
-		$statement->shouldReceive('fetch')->times(6)->andReturn(TRUE);
-
-		$this->pdo->shouldReceive('query')->times(6)->andReturn($statement);
-
-		Assert::true($this->driver->acquireLock(self::TEST_LABEL));
-		Assert::true($this->driver->releaseLock(self::TEST_LABEL));
-		Assert::true($this->driver->acquireLock(self::TEST_LABEL));
-		Assert::true($this->driver->releaseLock(self::TEST_LABEL));
-		Assert::true($this->driver->acquireLock(self::TEST_LABEL));
-		Assert::true($this->driver->releaseLock(self::TEST_LABEL));
-	}
-
 }
 
 run(new PdoPgsqlDriverTest());

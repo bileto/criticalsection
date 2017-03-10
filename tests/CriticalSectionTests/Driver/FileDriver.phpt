@@ -55,16 +55,6 @@ class FileDriverTest extends TestCase
 		Assert::true($this->driver->releaseLock(self::TEST_LABEL));
 	}
 
-	public function testCanAcquireAndReleaseMultipleTimesWithOnlyOneInitialization()
-	{
-		Assert::true($this->driver->acquireLock(self::TEST_LABEL));
-		Assert::true($this->driver->releaseLock(self::TEST_LABEL));
-		Assert::true($this->driver->acquireLock(self::TEST_LABEL));
-		Assert::true($this->driver->releaseLock(self::TEST_LABEL));
-		Assert::true($this->driver->acquireLock(self::TEST_LABEL));
-		Assert::true($this->driver->releaseLock(self::TEST_LABEL));
-	}
-
 	public function testCannotCreateDirectory()
 	{
 		$path = TEMP_DIR . '/file';
