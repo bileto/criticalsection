@@ -8,12 +8,20 @@ php:
   - 7.0
   - 7.1
 
+services:
+  - redis-server
+
 env:
   - PHP_BIN=php
   - PHP_BIN=php-cgi
 
 before_install:
   - travis_retry composer self-update
+
+addons:
+  apt:
+    packages:
+      - redis-server
 
 install:
   - travis_retry composer install --no-interaction --optimize-autoloader --prefer-dist
@@ -24,7 +32,7 @@ before_script:
   - ./vendor/bin/phpstan analyze --no-progress -l 5 -c ./phpstan.neon ./
 
 script:
-  - ./vendor/bin/tester -s -p $PHP_BIN -j 32 ./tests/CriticalSectionTests
+  - ./vendor/bin/tester -s -p $PHP_BIN -c ./tests/php.ini-unix -j 32 ./tests/CriticalSectionTests
 
 after_failure:
   - 'for i in $(find ./tests -name \*.actual); do echo "--- $i"; cat $i; echo; echo; done'

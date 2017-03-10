@@ -31,110 +31,131 @@ class RedisDriverTest extends TestCase
 	/**
 	 * @var Redis|Mockery\MockInterface
 	 */
+	private $redisMock;
+
+	/**
+	 * @var Redis
+	 */
 	private $redis;
 
 	protected function setUp()
 	{
 		parent::setUp();
-		$this->redis = Mockery::mock(Redis::class);
-		$this->driver = new RedisDriver($this->redis);
+		$this->redisMock = Mockery::mock(Redis::class);
+		$redis = new Redis();
+		$redis->connect('127.0.0.1');
+		$redis->select(7);
+		$this->redis = $redis;
 	}
 
 	public function testCanAcquireOnce()
 	{
-		$this->redis->shouldReceive('sAdd')->once()->andReturn(1);
-		$this->redis->shouldReceive('multi')->once()->andReturnSelf();
-		$this->redis->shouldReceive('del')->once()->andReturnSelf();
-		$this->redis->shouldReceive('rPush')->once()->andReturnSelf();
-		$this->redis->shouldReceive('exec')->once()->andReturn([0, TRUE]);
-		$this->redis->shouldReceive('blPop')->once()->andReturn(1);
-
-		Assert::true($this->driver->acquireLock(self::TEST_LABEL));
+		$label = __FUNCTION__;
+		$driver = new RedisDriver($this->redis);
+		Assert::true($driver->acquireLock($label));
+		Assert::true($driver->releaseLock($label));
 	}
 
-	public function testCanReleaseOnce()
+	public function testCanReleaseOnceAndOnlyOnce()
 	{
-		$this->redis->shouldReceive('sAdd')->once()->andReturn(1);
-		$this->redis->shouldReceive('multi')->once()->andReturnSelf();
-		$this->redis->shouldReceive('del')->once()->andReturnSelf();
-		$this->redis->shouldReceive('rPush')->once()->andReturnSelf();
-		$this->redis->shouldReceive('rPush')->once()->andReturn(TRUE);
-		$this->redis->shouldReceive('exec')->once()->andReturn([0, TRUE]);
-		$this->redis->shouldReceive('blPop')->once()->andReturn(1);
-
-		Assert::true($this->driver->acquireLock(self::TEST_LABEL));
-		Assert::true($this->driver->releaseLock(self::TEST_LABEL));
+		$label = __FUNCTION__;
+		$driver = new RedisDriver($this->redis);
+		Assert::true($driver->acquireLock($label));
+		Assert::true($driver->releaseLock($label));
+		Assert::false($driver->releaseLock($label));
 	}
 
-	public function testCanAcquireAndReleaseMultipleTimesWithOnlyOneInitialization()
+	public function testCanAcquireAndReleaseMultipleTimes()
 	{
-		$this->redis->shouldReceive('sAdd')->once()->andReturn(1);
-		$this->redis->shouldReceive('sAdd')->twice()->andReturn(0);
-		$this->redis->shouldReceive('multi')->once()->andReturnSelf();
-		$this->redis->shouldReceive('del')->once()->andReturnSelf();
-		$this->redis->shouldReceive('rPush')->once()->with(self::TEST_LABEL . ':lock', 1)->andReturnSelf();
-		$this->redis->shouldReceive('rPush')->times(3)->with(self::TEST_LABEL . ':lock', 1)->andReturn(TRUE);
-		$this->redis->shouldReceive('exec')->once()->andReturn([0, TRUE]);
-		$this->redis->shouldReceive('blPop')->times(3)->andReturn(1);
-
-		Assert::true($this->driver->acquireLock(self::TEST_LABEL));
-		Assert::true($this->driver->releaseLock(self::TEST_LABEL));
-		Assert::true($this->driver->acquireLock(self::TEST_LABEL));
-		Assert::true($this->driver->releaseLock(self::TEST_LABEL));
-		Assert::true($this->driver->acquireLock(self::TEST_LABEL));
-		Assert::true($this->driver->releaseLock(self::TEST_LABEL));
+		$label = __FUNCTION__;
+		$driver = new RedisDriver($this->redis);
+		Assert::true($driver->acquireLock($label));
+		Assert::true($driver->releaseLock($label));
+		Assert::true($driver->acquireLock($label));
+		Assert::true($driver->releaseLock($label));
+		Assert::true($driver->acquireLock($label));
+		Assert::true($driver->releaseLock($label));
 	}
 
 	public function testUnsuccessfulAcquire()
 	{
-		$this->redis->shouldReceive('sAdd')->once()->andReturn(1);
-		$this->redis->shouldReceive('multi')->once()->andReturnSelf();
-		$this->redis->shouldReceive('del')->once()->andReturnSelf();
-		$this->redis->shouldReceive('rPush')->once()->andReturnSelf();
-		$this->redis->shouldReceive('exec')->once()->andReturn([0, TRUE]);
-		$this->redis->shouldReceive('blPop')->once()->andReturn(0);
+		$this->redisMock->shouldReceive('sAdd')->once()->andReturn(1);
+		$this->redisMock->shouldReceive('multi')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('del')->twice()->andReturnSelf();
+		$this->redisMock->shouldReceive('rPush')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('sAdd')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('exec')->once()->andReturn([0, 0, TRUE, 1]);
+		$this->redisMock->shouldReceive('multi')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('blPop')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('srem')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('exec')->once()->andReturn([0, 1]);
 
-		Assert::false($this->driver->acquireLock(self::TEST_LABEL));
+		$driver = new RedisDriver($this->redisMock);
+		Assert::false($driver->acquireLock(self::TEST_LABEL));
 	}
 
-	public function testUnsuccessfulRelease()
+	public function testUnsuccessfulReleaseBecauseOfRPush()
 	{
-		$this->redis->shouldReceive('sAdd')->once()->andReturn(1);
-		$this->redis->shouldReceive('multi')->once()->andReturnSelf();
-		$this->redis->shouldReceive('del')->once()->andReturnSelf();
-		$this->redis->shouldReceive('rPush')->once()->andReturnSelf();
-		$this->redis->shouldReceive('rPush')->once()->andReturn(FALSE);
-		$this->redis->shouldReceive('exec')->once()->andReturn([0, TRUE]);
-		$this->redis->shouldReceive('blPop')->once()->andReturn(1);
+		$this->redisMock->shouldReceive('sAdd')->once()->andReturn(1);
+		$this->redisMock->shouldReceive('multi')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('del')->twice()->andReturnSelf();
+		$this->redisMock->shouldReceive('rPush')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('sAdd')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('exec')->once()->andReturn([0, 0, TRUE, 1]);
+		$this->redisMock->shouldReceive('multi')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('blPop')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('srem')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('exec')->once()->andReturn([1, 1]);
+		$this->redisMock->shouldReceive('sismember')->once()->andReturn(TRUE);
+		$this->redisMock->shouldReceive('sismember')->once()->andReturn(FALSE);
+		$this->redisMock->shouldReceive('multi')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('rPush')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('sAdd')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('exec')->once()->andReturn([FALSE, 1]);
 
-		Assert::true($this->driver->acquireLock(self::TEST_LABEL));
-		Assert::false($this->driver->releaseLock(self::TEST_LABEL));
+		$driver = new RedisDriver($this->redisMock);
+		Assert::true($driver->acquireLock(self::TEST_LABEL));
+		Assert::false($driver->releaseLock(self::TEST_LABEL));
+	}
+
+	public function testUnsuccessfulReleaseBecauseOfNoAcquire()
+	{
+		$label = __FUNCTION__;
+		$driver = new RedisDriver($this->redis);
+		Assert::false($driver->releaseLock($label));
 	}
 
 	public function testCannotInitializeCriticalSectionOnFirstEnter()
 	{
-		$this->redis->shouldReceive('sAdd')->once()->andReturn(1);
-		$this->redis->shouldReceive('multi')->once()->andReturnSelf();
-		$this->redis->shouldReceive('del')->once()->andReturnSelf();
-		$this->redis->shouldReceive('rPush')->once()->andReturnSelf();
-		$this->redis->shouldReceive('exec')->once()->andReturn([0, FALSE]);
+		$this->redisMock->shouldReceive('sAdd')->once()->andReturn(1);
+		$this->redisMock->shouldReceive('multi')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('del')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('del')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('rPush')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('sAdd')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('exec')->once()->andReturn([0, 0, FALSE, 1]);
 
 		Assert::exception(function () {
-			$this->driver->acquireLock(self::TEST_LABEL);
+			$driver = new RedisDriver($this->redisMock);
+			$driver->acquireLock(self::TEST_LABEL);
 		}, CriticalSectionException::class,'Cannot initialize redis critical section on first enter for "' . self::TEST_LABEL . '".');
 	}
 
 	public function testExceptionOnLockAcquire()
 	{
-		$this->redis->shouldReceive('sAdd')->once()->andReturn(1);
-		$this->redis->shouldReceive('multi')->once()->andReturnSelf();
-		$this->redis->shouldReceive('del')->once()->andReturnSelf();
-		$this->redis->shouldReceive('rPush')->once()->andReturnSelf();
-		$this->redis->shouldReceive('exec')->once()->andReturn([0, 1]);
-		$this->redis->shouldReceive('blPop')->once()->andThrow(Exception::class);
+		$this->redisMock->shouldReceive('sAdd')->once()->andReturn(1);
+		$this->redisMock->shouldReceive('multi')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('del')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('del')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('rPush')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('sAdd')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('exec')->once()->andReturn([0, 0, TRUE, 1]);
+		$this->redisMock->shouldReceive('multi')->once()->andReturnSelf();
+		$this->redisMock->shouldReceive('blPop')->once()->andThrow(Exception::class);
 
 		Assert::exception(function () {
-			$this->driver->acquireLock(self::TEST_LABEL);
+			$driver = new RedisDriver($this->redisMock);
+			$driver->acquireLock(self::TEST_LABEL);
 		}, CriticalSectionException::class, 'Could not acquire redis critical section lock for "' . self::TEST_LABEL . '".');
 	}
 
