@@ -47,12 +47,17 @@ class FileDriver implements IDriver
 
 	public function releaseLock(string $label) : bool
 	{
+		if (!isset($this->handles[$label])) {
+			return FALSE;
+		}
+
 		$unlocked = flock($this->handles[$label], LOCK_UN);
 		if ($unlocked === FALSE) {
 			return FALSE;
 		}
 
 		fclose($this->handles[$label]);
+		unset($this->handles[$label]);
 
 		return TRUE;
 	}

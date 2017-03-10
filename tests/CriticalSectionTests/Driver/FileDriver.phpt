@@ -49,8 +49,24 @@ class FileDriverTest extends TestCase
 		Assert::true($this->driver->acquireLock(self::TEST_LABEL));
 	}
 
-	public function testCanReleaseOnce()
+	public function testCanReleaseOnceAndOnlyOnce()
 	{
+		Assert::true($this->driver->acquireLock(self::TEST_LABEL));
+		Assert::true($this->driver->releaseLock(self::TEST_LABEL));
+		Assert::false($this->driver->releaseLock(self::TEST_LABEL));
+	}
+
+	public function testReleaseWithoutAcquire()
+	{
+		Assert::false($this->driver->releaseLock(self::TEST_LABEL));
+	}
+
+	public function testCanAcquireAndReleaseMultipleTimes()
+	{
+		Assert::true($this->driver->acquireLock(self::TEST_LABEL));
+		Assert::true($this->driver->releaseLock(self::TEST_LABEL));
+		Assert::true($this->driver->acquireLock(self::TEST_LABEL));
+		Assert::true($this->driver->releaseLock(self::TEST_LABEL));
 		Assert::true($this->driver->acquireLock(self::TEST_LABEL));
 		Assert::true($this->driver->releaseLock(self::TEST_LABEL));
 	}
