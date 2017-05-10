@@ -48,7 +48,7 @@ class PdoPgsqlDriver implements IDriver
 			return FALSE;
 		}
 
-		$executionResult =  $statement->execute([$lockId]);
+		$executionResult = $statement->execute([$lockId]);
 
 		return $executionResult
 			? (bool) $statement->fetch(PDO::FETCH_COLUMN)
