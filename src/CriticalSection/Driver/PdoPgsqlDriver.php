@@ -43,7 +43,7 @@ class PdoPgsqlDriver implements IDriver
 
 	private function runQuery(string $query, int $lockId) : bool
 	{
-		$statement = $this->pdo->query($query);
+		$statement = $this->pdo->prepare($query);
 		if ($statement === FALSE) {
 			return FALSE;
 		}

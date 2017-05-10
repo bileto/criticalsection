@@ -45,7 +45,7 @@ class PdoPgsqlDriverTest extends TestCase
 		$statement->shouldReceive('execute')->once()->andReturn(TRUE);
 		$statement->shouldReceive('fetch')->once()->andReturn(TRUE);
 
-		$this->pdo->shouldReceive('query')->once()->andReturn($statement);
+		$this->pdo->shouldReceive('prepare')->once()->andReturn($statement);
 
 		Assert::true($this->driver->acquireLock(self::TEST_LABEL));
 	}
@@ -56,7 +56,7 @@ class PdoPgsqlDriverTest extends TestCase
 		$statement->shouldReceive('execute')->twice()->andReturn(TRUE);
 		$statement->shouldReceive('fetch')->twice()->andReturn(TRUE);
 
-		$this->pdo->shouldReceive('query')->twice()->andReturn($statement);
+		$this->pdo->shouldReceive('prepare')->twice()->andReturn($statement);
 
 		Assert::true($this->driver->acquireLock(self::TEST_LABEL));
 		Assert::true($this->driver->releaseLock(self::TEST_LABEL));
