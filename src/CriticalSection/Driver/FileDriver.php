@@ -9,69 +9,68 @@ use Bileto\CriticalSection\Exception\CriticalSectionException;
 class FileDriver implements IDriver
 {
 
-	/**
-	 * @var resource[]
-	 */
-	private $handles = [];
+    /** @var array|resource[] */
+    private $handles = [];
 
-	/**
-	 * @var string
-	 */
-	private $lockFilesDir;
+    /** @var string */
+    private $lockFilesDir;
 
-	public function __construct(string $lockFilesDir)
-	{
-		$lockFilesDir = rtrim($lockFilesDir, DIRECTORY_SEPARATOR);
-		self::createDir($lockFilesDir);
-		$this->lockFilesDir = $lockFilesDir;
-	}
+    public function __construct(string $lockFilesDir)
+    {
+        $lockFilesDir = rtrim($lockFilesDir, DIRECTORY_SEPARATOR);
+        self::createDir($lockFilesDir);
+        $this->lockFilesDir = $lockFilesDir;
+    }
 
-	public function acquireLock(string $label) : bool
-	{
-		$handle = fopen($this->getFilePath($label), "w+b");
-		if ($handle === FALSE) {
-			return FALSE;
-		}
+    public function acquireLock(string $label): bool
+    {
+        /** @var resource|bool $handle */
+        $handle = fopen($this->getFilePath($label), "w+b");
+        if (is_bool($handle) && $handle === false) {
+            return false;
+        }
 
-		$locked = flock($handle, LOCK_EX | LOCK_NB);
-		if ($locked === FALSE) {
-			fclose($handle);
+        $locked = flock($handle, LOCK_EX | LOCK_NB);
+        if ($locked === false) {
+            fclose($handle);
+        } else {
+            $this->handles[$label] = $handle;
+        }
 
-			return FALSE;
-		}
+        return $locked;
+    }
 
-		$this->handles[$label] = $handle;
+    public function releaseLock(string $label): bool
+    {
+        if (array_key_exists($label, $this->handles) === false) {
+            return false;
+        }
 
-		return TRUE;
-	}
+        $unlocked = flock($this->handles[$label], LOCK_UN);
+        if ($unlocked === false) {
+            return false;
+        }
 
-	public function releaseLock(string $label) : bool
-	{
-		if (!isset($this->handles[$label])) {
-			return FALSE;
-		}
+        fclose($this->handles[$label]);
+        unset($this->handles[$label]);
 
-		$unlocked = flock($this->handles[$label], LOCK_UN);
-		if ($unlocked === FALSE) {
-			return FALSE;
-		}
+        return true;
+    }
 
-		fclose($this->handles[$label]);
-		unset($this->handles[$label]);
+    private function getFilePath(string $label): string
+    {
+        return $this->lockFilesDir . DIRECTORY_SEPARATOR . sha1($label);
+    }
 
-		return TRUE;
-	}
-
-	private function getFilePath(string $label) : string
-	{
-		return $this->lockFilesDir . DIRECTORY_SEPARATOR . sha1($label);
-	}
-
-	private static function createDir(string $dir)
-	{
-		if (!is_dir($dir) && !@mkdir($dir, 0777, TRUE) && !is_dir($dir)) { // @ - dir may already exist
-			throw new CriticalSectionException("Unable to create directory '$dir'. " . error_get_last()['message']);
-		}
-	}
+    /**
+     * @param string $dir
+     * @throws CriticalSectionException
+     */
+    private static function createDir(string $dir): void
+    {
+        if (!is_dir($dir) && !@mkdir($dir, 0777, TRUE) && !is_dir($dir)) { // @ - dir may already exist
+            throw new CriticalSectionException("Unable to create directory '$dir'. " . error_get_last()['message']);
+        }
+    }
 
 }

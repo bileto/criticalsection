@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Bileto\CriticalSection\Driver;
 
 use PDO;
+use PDOException;
+use PDOStatement;
 
 /**
  * @see https://mariadb.com/kb/en/mariadb/get_lock
@@ -12,59 +14,65 @@ use PDO;
  */
 class PdoMysqlDriver implements IDriver
 {
-	const NO_WAIT = 0;
+    const NO_WAIT = 0;
 
-	/**
-	 * @var PDO
-	 */
-	private $pdo;
+    /** @var PDO */
+    private $pdo;
 
-	/**
-	 * @var int
-	 */
-	private $lockTimeout;
+    /** @var int */
+    private $lockTimeout;
 
-	public function __construct(PDO $pdo, int $lockTimeout = self::NO_WAIT)
-	{
-		$this->pdo = $pdo;
-		$this->lockTimeout = $lockTimeout;
-	}
+    public function __construct(PDO $pdo, int $lockTimeout = self::NO_WAIT)
+    {
+        $this->pdo = $pdo;
+        $this->lockTimeout = $lockTimeout;
+    }
 
-	public function acquireLock(string $label) : bool
-	{
-		$lockName = self::transformLabelToKey($label);
+    public function acquireLock(string $label): bool
+    {
+        $lockName = self::transformLabelToKey($label);
 
-		return $this->runQuery('SELECT GET_LOCK(?, ?)', $lockName, $this->lockTimeout);
-	}
+        return $this->runQuery('SELECT GET_LOCK(?, ?)', $lockName, $this->lockTimeout);
+    }
 
-	public function releaseLock(string $label) : bool
-	{
-		$lockName = self::transformLabelToKey($label);
+    public function releaseLock(string $label): bool
+    {
+        $lockName = self::transformLabelToKey($label);
 
-		return $this->runQuery('SELECT RELEASE_LOCK(?)', $lockName);
-	}
+        return $this->runQuery('SELECT RELEASE_LOCK(?)', $lockName);
+    }
 
-	private static function transformLabelToKey(string $label) : string
-	{
-		return sha1($label);
-	}
+    private static function transformLabelToKey(string $label): string
+    {
+        return sha1($label);
+    }
 
-	private function runQuery(string $query, string $lockName, int $lockTimeout = NULL) : bool
-	{
-		$statement = $this->pdo->prepare($query);
-		if ($statement === FALSE) {
-			return FALSE;
-		}
+    /**
+     * @param string $query
+     * @param string $lockName
+     * @param int|null $lockTimeout
+     * @return bool
+     * @throws PDOException Thrown if error mode set to PDO::ERRMODE_EXCEPTION,
+     * and an error occures
+     */
+    private function runQuery(string $query, string $lockName, int $lockTimeout = NULL): bool
+    {
+        /** @var PDOStatement|bool $statement */
+        $statement = $this->pdo->prepare($query);
+        if (is_bool($statement) && $statement === false) {
+            return false;
+        }
 
-		$executeParameters = [$lockName];
-		if ($lockTimeout !== NULL) {
-			$executeParameters[] = $lockTimeout;
-		}
-		$executionResult = $statement->execute($executeParameters);
+        $executeParameters = [$lockName];
+        if ($lockTimeout !== null) {
+            $executeParameters[] = $lockTimeout;
+        }
 
-		return $executionResult
-			? (bool) $statement->fetch(PDO::FETCH_COLUMN)
-			: FALSE;
-	}
+        $executionResult = $statement->execute($executeParameters);
+
+        return $executionResult
+            ? (bool)$statement->fetch(PDO::FETCH_COLUMN)
+            : false;
+    }
 
 }
