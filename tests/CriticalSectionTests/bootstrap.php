@@ -9,9 +9,4 @@ define("TEMP_DIR", TEST_DIR . '/../tmp/' . (isset($_SERVER['argv']) ? md5(serial
 
 Tester\Environment::setup();
 
-function run(Tester\TestCase $testCase)
-{
-    $testCase->runTest(isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : NULL);
-}
-
 return $autoloader;
