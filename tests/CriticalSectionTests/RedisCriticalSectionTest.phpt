@@ -6,9 +6,10 @@ declare(strict_types=1);
  * @testCase
  */
 
-namespace Bileto\CriticalSection\tests;
+namespace CriticalSectionTests;
 
 use Mockery;
+use Mockery\MockInterface;
 use Redis;
 use Bileto\CriticalSection\CriticalSection;
 use Bileto\CriticalSection\Driver\IDriver;
@@ -22,14 +23,10 @@ class RedisCriticalSectionTest extends TestCase
 
 	const TEST_LABEL = "test";
 
-	/**
-	 * @var CriticalSection
-	 */
+	/** @var CriticalSection */
 	private $criticalSection;
 
-	/**
-	 * @var IDriver|Mockery\MockInterface
-	 */
+	/** @var IDriver|MockInterface */
 	private $driver;
 
 	protected function setUp()

@@ -6,7 +6,7 @@ declare(strict_types=1);
  * @testCase
  */
 
-namespace Bileto\CriticalSection\tests\Driver;
+namespace CriticalSectionTests\Driver;
 
 use Exception;
 use Mockery;

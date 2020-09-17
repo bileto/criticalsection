@@ -6,7 +6,7 @@ declare(strict_types=1);
  * @testCase
  */
 
-namespace Bileto\CriticalSection\tests\Driver;
+namespace CriticalSectionTests\Driver;
 
 use Bileto\CriticalSection\Driver\FileDriver;
 use Bileto\CriticalSection\Exception\CriticalSectionException;
@@ -20,14 +20,10 @@ class FileDriverTest extends TestCase
 
 	const TEST_LABEL = "test";
 
-	/**
-	 * @var FileDriver
-	 */
+	/** @var FileDriver */
 	private $driver;
 
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	private $filesDir;
 
 	protected function setUp()

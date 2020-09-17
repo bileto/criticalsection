@@ -9,14 +9,10 @@ use Bileto\CriticalSection\Exception\CriticalSectionException;
 class FileDriver implements IDriver
 {
 
-	/**
-	 * @var resource[]
-	 */
+	/** @var array|resource[] */
 	private $handles = [];
 
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	private $lockFilesDir;
 
 	public function __construct(string $lockFilesDir)
