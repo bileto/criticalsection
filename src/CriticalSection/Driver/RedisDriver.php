@@ -27,58 +27,61 @@ class RedisDriver implements IDriver
 
     public function acquireLock(string $label): bool
     {
-        $lockKey = self::formatLock($label);
+        $lockKey = static::keyForLock($label);
 
         // This condition assumes one redis instance only that guarantees atomicity
-        if ($this->redis->sAdd($lockKey . ':initialized', $lockKey) > 0) {
-            $multiResult = $this->redis->multi();
-            $multiResult->del($lockKey);
-            $multiResult->del($lockKey . ':released');
-            $multiResult->rPush($lockKey, self::LOCK_VALUE);
-            $multiResult->sAdd($lockKey . ':released', 1);
-            $multiResult->exec();
+        /** @var bool|int $valueAdded */
+        $valueAdded = $this->redis->sAdd($lockKey . ':initialized', $lockKey);
+        if (!is_bool($valueAdded) && $valueAdded > 0) {
+            $multiCall = $this->redis->multi();
+            $multiCall->del($lockKey);
+            $multiCall->del($lockKey . ':released');
+            $multiCall->rPush($lockKey, self::LOCK_VALUE);
+            $multiCall->sAdd($lockKey . ':released', 1);
+            $multiResult = $multiCall->exec();
 
             if ($multiResult[2] === false) {
-                throw new CriticalSectionException('Cannot initialize redis critical section on first enter for "' . $label . '".');
+                throw new CriticalSectionException("Cannot initialize redis critical section on first enter for '{$label}'.");
             }
         }
         try {
-            $result = $this->redis->multi();
-            $result->blPop($lockKey, $this->acquireTimeout);
-            $result->sRem($lockKey . ':released', 1);
-            $result->exec();
+            $multiCall = $this->redis->multi();
+            $multiCall->blPop($lockKey, $this->acquireTimeout);
+            $multiCall->sRem("{$lockKey}:released", 1);
+            $multiResult = $multiCall->exec();
         } catch (Throwable $e) {
-            throw new CriticalSectionException('Could not acquire redis critical section lock for "' . $label . '".', 0, $e);
+            throw new CriticalSectionException("Could not acquire redis critical section lock for '{$label}'.", 0, $e);
         }
 
-        if (!$result[0]) {
+        if (!$multiResult[0]) {
             return false;
         }
 
-        return TRUE;
+        return true;
     }
 
     public function releaseLock(string $label): bool
     {
-        $lockKey = self::formatLock($label);
-        if (!$this->redis->sIsMember($lockKey . ':initialized', $lockKey)) {
+        $lockKey = static::keyForLock($label);
+
+        if (!$this->redis->sIsMember("{$lockKey}:initialized", $lockKey)) {
             return false;
         }
-        if ($this->redis->sIsMember($lockKey . ':released', 1)) {
+        if ($this->redis->sIsMember("{$lockKey}:released", 1)) {
             return false;
         }
 
-        $result = $this->redis->multi();
-        $result->rPush($lockKey, self::LOCK_VALUE);
-        $result->sAdd($lockKey . ':released', 1);
-        $result->exec();
+        $multiCall = $this->redis->multi();
+        $multiCall->rPush($lockKey, self::LOCK_VALUE);
+        $multiCall->sAdd("{$lockKey}:released", 1);
+        $multiResult = $multiCall->exec();
 
-        return $result[0] === false ? false : true;
+        return $multiResult[0] === false ? false : true;
     }
 
-    private static function formatLock(string $label): string
+    public static function keyForLock(string $label): string
     {
-        return $label . ':lock';
+        return "{$label}:lock";
     }
 
 }
