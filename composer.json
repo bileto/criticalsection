@@ -27,6 +27,9 @@
 	"suggest": {
 		"ext-redis": "The php redis extension https://github.com/nicolasff/phpredis/ is required for connecting to redis server"
 	},
+	"replace": {
+		"stekycz/CriticalSection" : "1.0.1"
+	},
 	"require-dev": {
 		"nette/tester": "^1.7",
 		"jakub-onderka/php-parallel-lint": "^0.9",
