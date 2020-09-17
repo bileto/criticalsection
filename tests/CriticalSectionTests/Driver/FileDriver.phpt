@@ -6,10 +6,10 @@ declare(strict_types=1);
  * @testCase
  */
 
-namespace stekycz\CriticalSection\tests\Driver;
+namespace Bileto\CriticalSection\tests\Driver;
 
-use stekycz\CriticalSection\Driver\FileDriver;
-use stekycz\CriticalSection\Exception\CriticalSectionException;
+use Bileto\CriticalSection\Driver\FileDriver;
+use Bileto\CriticalSection\Exception\CriticalSectionException;
 use TestCase;
 use Tester\Assert;
 

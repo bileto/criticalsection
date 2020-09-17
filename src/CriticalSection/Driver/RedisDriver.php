@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace stekycz\CriticalSection\Driver;
+namespace Bileto\CriticalSection\Driver;
 
 use Redis;
-use stekycz\CriticalSection\Exception\CriticalSectionException;
+use Bileto\CriticalSection\Exception\CriticalSectionException;
 use Throwable;
 
 class RedisDriver implements IDriver

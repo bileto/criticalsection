@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace stekycz\CriticalSection\Driver;
+namespace Bileto\CriticalSection\Driver;
 
-use stekycz\CriticalSection\Exception\CriticalSectionException;
+use Bileto\CriticalSection\Exception\CriticalSectionException;
 
 class FileDriver implements IDriver
 {

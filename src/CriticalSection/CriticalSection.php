@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace stekycz\CriticalSection;
+namespace Bileto\CriticalSection;
 
-use stekycz\CriticalSection\Driver\IDriver;
-use stekycz\CriticalSection\Exception\RuntimeException;
+use Bileto\CriticalSection\Driver\IDriver;
+use Bileto\CriticalSection\Exception\RuntimeException;
 use Throwable;
 
 final class CriticalSection implements ICriticalSection

@@ -1,7 +1,7 @@
-# CriticalSection [![Build Status](https://travis-ci.org/stekycz/CriticalSection.svg?branch=master)](https://travis-ci.org/stekycz/CriticalSection)
+# CriticalSection [![Build Status](https://travis-ci.org/bileto/CriticalSection.svg?branch=master)](https://travis-ci.org/bileto/CriticalSection)
 
 ## Description
 
 Lightweight class supporting critical section locking.
 
-It requires **PHP >= 7.0.0**.
+It requires **PHP >= 7.1**.

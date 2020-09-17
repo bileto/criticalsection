@@ -1,10 +1,15 @@
 {
-	"name": "stekycz/critical-section",
+	"name": "bileto/critical-section",
 	"type": "library",
 	"description": "Lightweight class supporting critical section locking",
 	"keywords": ["parallel", "critical-section", "locks"],
 	"license": "MIT",
 	"authors": [
+		{
+			"name": "Josef Petrák",
+			"email": "me@jspetrak.name",
+			"role": "Developer"
+		},
 		{
 			"name": "Martin Štekl",
 			"email": "martin.stekl@gmail.com",
@@ -12,12 +17,12 @@
 		}
 	],
 	"support": {
-		"email": "martin.stekl@gmail.com",
-		"issues": "https://github.com/stekycz/CriticalSection/issues",
-		"source": "https://github.com/stekycz/CriticalSection"
+		"email": "development@bileto.com",
+		"issues": "https://github.com/bileto/CriticalSection/issues",
+		"source": "https://github.com/bileto/CriticalSection"
 	},
 	"require": {
-		"php": ">=7.0.0"
+		"php": ">=7.1"
 	},
 	"suggest": {
 		"ext-redis": "The php redis extension https://github.com/nicolasff/phpredis/ is required for connecting to redis server"
@@ -30,7 +35,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"stekycz\\": "src"
+			"Bileto\\": "src"
 		}
 	}
 }
