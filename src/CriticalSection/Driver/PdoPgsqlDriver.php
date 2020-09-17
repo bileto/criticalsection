@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bileto\CriticalSection\Driver;
 
 use PDO;
+use PDOException;
 use PDOStatement;
 
 /**
