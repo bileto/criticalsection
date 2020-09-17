@@ -25,10 +25,11 @@
 		"php": ">=7.1"
 	},
 	"suggest": {
+		"ext-pdo": "PDO module is used to connect to MySQL or PostgreSQL database",
 		"ext-redis": "The php redis extension https://github.com/nicolasff/phpredis/ is required for connecting to redis server"
 	},
 	"replace": {
-		"stekycz/CriticalSection" : "1.0.1"
+		"stekycz/criticalsection" : "1.0.1"
 	},
 	"require-dev": {
 		"nette/tester": "^1.7",
