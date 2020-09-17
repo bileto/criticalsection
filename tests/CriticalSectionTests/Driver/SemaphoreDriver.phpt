@@ -6,9 +6,9 @@ declare(strict_types=1);
  * @testCase
  */
 
-namespace stekycz\CriticalSection\tests\Driver;
+namespace Bileto\CriticalSection\tests\Driver;
 
-use stekycz\CriticalSection\Driver\SemaphoreDriver;
+use Bileto\CriticalSection\Driver\SemaphoreDriver;
 use TestCase;
 use Tester\Assert;
 

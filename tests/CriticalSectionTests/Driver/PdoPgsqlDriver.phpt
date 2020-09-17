@@ -6,12 +6,12 @@ declare(strict_types=1);
  * @testCase
  */
 
-namespace stekycz\CriticalSection\tests\Driver;
+namespace Bileto\CriticalSection\tests\Driver;
 
 use Mockery;
 use PDO;
 use PDOStatement;
-use stekycz\CriticalSection\Driver\PdoPgsqlDriver;
+use Bileto\CriticalSection\Driver\PdoPgsqlDriver;
 use TestCase;
 use Tester\Assert;
 

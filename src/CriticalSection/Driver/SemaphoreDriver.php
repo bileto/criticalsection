@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace stekycz\CriticalSection\Driver;
+namespace Bileto\CriticalSection\Driver;
 
 /**
  * This driver works correctly in single system environment only because semaphores are not shared on different

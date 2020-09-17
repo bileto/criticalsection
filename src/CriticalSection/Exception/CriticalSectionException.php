@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace stekycz\CriticalSection\Exception;
+namespace Bileto\CriticalSection\Exception;
 
 class CriticalSectionException extends RuntimeException
 {

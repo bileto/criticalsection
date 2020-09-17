@@ -6,12 +6,12 @@ declare(strict_types=1);
  * @testCase
  */
 
-namespace stekycz\CriticalSection\tests;
+namespace Bileto\CriticalSection\tests;
 
 use Mockery;
 use Redis;
-use stekycz\CriticalSection\CriticalSection;
-use stekycz\CriticalSection\Driver\IDriver;
+use Bileto\CriticalSection\CriticalSection;
+use Bileto\CriticalSection\Driver\IDriver;
 use TestCase;
 use Tester\Assert;
 

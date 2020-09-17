@@ -1,4 +1,4 @@
-# CriticalSection [![Build Status](https://travis-ci.org/stekycz/CriticalSection.svg?branch=master)](https://travis-ci.org/stekycz/CriticalSection)
+# CriticalSection [![Build Status](https://travis-ci.org/bileto/CriticalSection.svg?branch=master)](https://travis-ci.org/bileto/CriticalSection)
 
 ## Description
 
