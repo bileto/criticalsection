@@ -33,7 +33,7 @@
 		"stekycz/criticalsection" : "1.0.1"
 	},
 	"require-dev": {
-		"nette/tester": "^1.7",
+		"nette/tester": "^2.3",
 		"jakub-onderka/php-parallel-lint": "^0.9",
 		"mockery/mockery": "^0.9",
 		"phpstan/phpstan": "^0.12"
