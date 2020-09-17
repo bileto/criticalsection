@@ -11,49 +11,48 @@ namespace Bileto\CriticalSection\Driver;
 class SemaphoreDriver implements IDriver
 {
 
-	/**
-	 * @var resource[]
-	 */
-	private $handles = [];
+    /** @var array|resource[] */
+    private $handles = [];
 
-	public function acquireLock(string $label) : bool
-	{
-		$key = self::transformLabelToIntegerKey($label);
+    public function acquireLock(string $label): bool
+    {
+        $key = self::transformLabelToIntegerKey($label);
 
-		$semaphore = sem_get($key);
-		if (!$semaphore) {
-			return FALSE;
-		}
+        /** @var resource|bool $semaphore */
+        $semaphore = sem_get($key);
+        if (is_bool($semaphore) && $semaphore === false) {
+            return false;
+        }
 
-		$result = sem_acquire($semaphore, TRUE);
-		if (!$result) {
-			return FALSE;
-		}
+        $result = sem_acquire($semaphore, true);
+        if (!$result) {
+            return false;
+        }
 
-		$this->handles[$label] = $semaphore;
+        $this->handles[$label] = $semaphore;
 
-		return TRUE;
-	}
+        return true;
+    }
 
-	public function releaseLock(string $label) : bool
-	{
-		if (!isset($this->handles[$label])) {
-			return FALSE;
-		}
+    public function releaseLock(string $label): bool
+    {
+        if (array_key_exists($label, $this->handles) === false) {
+            return false;
+        }
 
-		$result = sem_release($this->handles[$label]);
-		if (!$result) {
-			return FALSE;
-		}
+        $result = sem_release($this->handles[$label]);
+        if (!$result) {
+            return false;
+        }
 
-		unset($this->handles[$label]);
+        unset($this->handles[$label]);
 
-		return TRUE;
-	}
+        return true;
+    }
 
-	private static function transformLabelToIntegerKey(string $label) : int
-	{
-		return crc32($label);
-	}
+    private static function transformLabelToIntegerKey(string $label): int
+    {
+        return crc32($label);
+    }
 
 }
