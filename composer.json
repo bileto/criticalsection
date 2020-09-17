@@ -22,7 +22,7 @@
 		"source": "https://github.com/bileto/CriticalSection"
 	},
 	"require": {
-		"php": ">=7.0.0"
+		"php": ">=7.1"
 	},
 	"suggest": {
 		"ext-redis": "The php redis extension https://github.com/nicolasff/phpredis/ is required for connecting to redis server"

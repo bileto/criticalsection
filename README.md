@@ -4,4 +4,4 @@
 
 Lightweight class supporting critical section locking.
 
-It requires **PHP >= 7.0.0**.
+It requires **PHP >= 7.1**.
