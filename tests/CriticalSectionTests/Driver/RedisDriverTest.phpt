@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-/**
- * @testCase
- */
-
 namespace CriticalSectionTests\Driver;
+
+require_once(__DIR__ . '/../bootstrap.php');
 
 use Exception;
 use Mockery;
@@ -14,10 +12,8 @@ use Mockery\MockInterface;
 use Redis;
 use Bileto\CriticalSection\Driver\RedisDriver;
 use Bileto\CriticalSection\Exception\CriticalSectionException;
-use TestCase;
+use Tester\TestCase;
 use Tester\Assert;
-
-require_once(__DIR__ . '/../bootstrap.php');
 
 class RedisDriverTest extends TestCase
 {
@@ -41,6 +37,11 @@ class RedisDriverTest extends TestCase
         $redis->connect('127.0.0.1');
         $redis->select(7);
         $this->redis = $redis;
+    }
+
+    protected function tearDown()
+    {
+        Mockery::close();
     }
 
     public function testCanAcquireOnce()
@@ -156,4 +157,4 @@ class RedisDriverTest extends TestCase
 
 }
 
-run(new RedisDriverTest());
+(new RedisDriverTest())->run();
