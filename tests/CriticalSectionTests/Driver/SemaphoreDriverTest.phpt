@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CriticalSectionTests\Driver;
+namespace BiletoTests\CriticalSectionTests\Driver;
 
 require_once(__DIR__ . '/../bootstrap.php');
 
@@ -19,23 +19,23 @@ class SemaphoreDriverTest extends TestCase
     /** @var SemaphoreDriver */
     private $driver;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->driver = new SemaphoreDriver();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         Mockery::close();
     }
 
-    public function testCanAcquireOnce()
+    public function testCanAcquireOnce(): void
     {
         $label = __FUNCTION__;
         Assert::true($this->driver->acquireLock($label));
     }
 
-    public function testCanReleaseOnce()
+    public function testCanReleaseOnce(): void
     {
         $label = __FUNCTION__;
         Assert::true($this->driver->acquireLock($label));

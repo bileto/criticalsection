@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace CriticalSectionTests;
+namespace BiletoTests\CriticalSectionTests;
 
 require_once(__DIR__ . '/bootstrap.php');
 
 use Mockery;
+use Mockery\LegacyMockInterface;
 use Mockery\MockInterface;
 use Redis;
 use Bileto\CriticalSection\CriticalSection;
@@ -22,21 +23,21 @@ class RedisCriticalSectionTest extends TestCase
     /** @var CriticalSection */
     private $criticalSection;
 
-    /** @var IDriver|MockInterface */
+    /** @var IDriver|MockInterface|LegacyMockInterface */
     private $driver;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->driver = Mockery::mock(IDriver::class);
         $this->criticalSection = new CriticalSection($this->driver);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         Mockery::close();
     }
 
-    public function testCanBeEnteredAndLeft()
+    public function testCanBeEnteredAndLeft(): void
     {
         $this->driver->shouldReceive('acquireLock')->once()->andReturn(TRUE);
         $this->driver->shouldReceive('releaseLock')->once()->andReturn(TRUE);
@@ -48,7 +49,7 @@ class RedisCriticalSectionTest extends TestCase
         Assert::false($this->criticalSection->isEntered(self::TEST_LABEL));
     }
 
-    public function testCannotBeEnteredTwice()
+    public function testCannotBeEnteredTwice(): void
     {
         $this->driver->shouldReceive('acquireLock')->once()->andReturn(TRUE);
         $this->driver->shouldReceive('releaseLock')->once()->andReturn(TRUE);
@@ -59,7 +60,7 @@ class RedisCriticalSectionTest extends TestCase
         Assert::true($this->criticalSection->leave(self::TEST_LABEL));
     }
 
-    public function testCannotBeLeftWithoutEnter()
+    public function testCannotBeLeftWithoutEnter(): void
     {
         $this->driver->shouldReceive('acquireLock')->never();
         $this->driver->shouldReceive('releaseLock')->never();
@@ -68,7 +69,7 @@ class RedisCriticalSectionTest extends TestCase
         Assert::false($this->criticalSection->leave(self::TEST_LABEL));
     }
 
-    public function testCannotBeLeftTwice()
+    public function testCannotBeLeftTwice(): void
     {
         $this->driver->shouldReceive('acquireLock')->once()->andReturn(TRUE);
         $this->driver->shouldReceive('releaseLock')->once()->andReturn(TRUE);
@@ -79,7 +80,7 @@ class RedisCriticalSectionTest extends TestCase
         Assert::false($this->criticalSection->leave(self::TEST_LABEL));
     }
 
-    public function testIsNotEnteredOnNotAcquiredLock()
+    public function testIsNotEnteredOnNotAcquiredLock(): void
     {
         $this->driver->shouldReceive('acquireLock')->once()->andReturn(FALSE);
         $this->driver->shouldReceive('releaseLock')->never();
@@ -89,7 +90,7 @@ class RedisCriticalSectionTest extends TestCase
         Assert::false($this->criticalSection->isEntered(self::TEST_LABEL));
     }
 
-    public function testIsNotLeftOnNotReleasedLock()
+    public function testIsNotLeftOnNotReleasedLock(): void
     {
         $this->driver->shouldReceive('acquireLock')->once()->andReturn(TRUE);
         $this->driver->shouldReceive('releaseLock')->once()->andReturn(FALSE);
@@ -100,7 +101,7 @@ class RedisCriticalSectionTest extends TestCase
         Assert::true($this->criticalSection->isEntered(self::TEST_LABEL));
     }
 
-    public function testMultipleCriticalSectionHandlers()
+    public function testMultipleCriticalSectionHandlers(): void
     {
         $this->driver->shouldReceive('acquireLock')->once()->andReturn(TRUE);
         $this->driver->shouldReceive('acquireLock')->once()->andReturn(FALSE);

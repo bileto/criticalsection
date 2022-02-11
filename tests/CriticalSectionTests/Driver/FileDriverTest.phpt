@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CriticalSectionTests\Driver;
+namespace BiletoTests\CriticalSectionTests\Driver;
 
 require_once(__DIR__ . '/../bootstrap.php');
 
@@ -23,37 +23,37 @@ class FileDriverTest extends TestCase
     /** @var string */
     private $filesDir;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->filesDir = TEMP_DIR . '/critical-section';
         mkdir($this->filesDir, 0777, true);
         $this->driver = new FileDriver($this->filesDir);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         system('rm -rf ' . escapeshellarg($this->filesDir));
         Mockery::close();
     }
 
-    public function testCanAcquireOnce()
+    public function testCanAcquireOnce(): void
     {
         Assert::true($this->driver->acquireLock(self::TEST_LABEL));
     }
 
-    public function testCanReleaseOnceAndOnlyOnce()
+    public function testCanReleaseOnceAndOnlyOnce(): void
     {
         Assert::true($this->driver->acquireLock(self::TEST_LABEL));
         Assert::true($this->driver->releaseLock(self::TEST_LABEL));
         Assert::false($this->driver->releaseLock(self::TEST_LABEL));
     }
 
-    public function testReleaseWithoutAcquire()
+    public function testReleaseWithoutAcquire(): void
     {
         Assert::false($this->driver->releaseLock(self::TEST_LABEL));
     }
 
-    public function testCanAcquireAndReleaseMultipleTimes()
+    public function testCanAcquireAndReleaseMultipleTimes(): void
     {
         Assert::true($this->driver->acquireLock(self::TEST_LABEL));
         Assert::true($this->driver->releaseLock(self::TEST_LABEL));
@@ -63,7 +63,7 @@ class FileDriverTest extends TestCase
         Assert::true($this->driver->releaseLock(self::TEST_LABEL));
     }
 
-    public function testCannotCreateDirectory()
+    public function testCannotCreateDirectory(): void
     {
         $path = TEMP_DIR . '/file';
         touch($path);

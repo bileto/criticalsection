@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CriticalSectionTests\Driver;
+namespace BiletoTests\CriticalSectionTests\Driver;
 
 require_once(__DIR__ . '/../bootstrap.php');
 
@@ -24,18 +24,18 @@ class PdoMysqlDriverTest extends TestCase
     /** @var PDO */
     private $pdo;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->pdo = Mockery::mock(PDO::class);
         $this->driver = new PdoMysqlDriver($this->pdo);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         Mockery::close();
     }
 
-    public function testCanAcquireOnce()
+    public function testCanAcquireOnce(): void
     {
         $statement = Mockery::mock(PDOStatement::class);
         $statement->shouldReceive('execute')->once()->andReturn(TRUE);
@@ -46,7 +46,7 @@ class PdoMysqlDriverTest extends TestCase
         Assert::true($this->driver->acquireLock(self::TEST_LABEL));
     }
 
-    public function testCanReleaseOnce()
+    public function testCanReleaseOnce(): void
     {
         $statement = Mockery::mock(PDOStatement::class);
         $statement->shouldReceive('execute')->twice()->andReturn(TRUE);

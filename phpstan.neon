@@ -1,9 +1,12 @@
 parameters:
 	level: 9
+	fileExtensions:
+		- php
+		- phpt
 	paths:
 		- src
-	excludePaths:
 		- tests
+	excludePaths:
 		- vendor
 	ignoreErrors:
 		- '#.*Redis::.*#'

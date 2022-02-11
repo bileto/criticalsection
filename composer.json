@@ -33,15 +33,20 @@
 		"stekycz/criticalsection" : "1.0.1"
 	},
 	"require-dev": {
-		"nette/tester": "^2.3",
+		"nette/tester": "^2.4",
 		"php-parallel-lint/php-parallel-lint": "^1.3",
-		"mockery/mockery": "^1.3",
+		"mockery/mockery": "^1.5",
 		"phpstan/phpstan": "^1.4",
 		"spaze/phpstan-disallowed-calls": "^2.2"
 	},
 	"autoload": {
 		"psr-4": {
 			"Bileto\\": "src"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"BiletoTests\\": "tests/"
 		}
 	}
 }

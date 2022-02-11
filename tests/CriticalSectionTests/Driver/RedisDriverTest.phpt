@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace CriticalSectionTests\Driver;
+namespace BiletoTests\CriticalSectionTests\Driver;
 
 require_once(__DIR__ . '/../bootstrap.php');
 
 use Exception;
 use Mockery;
+use Mockery\LegacyMockInterface;
 use Mockery\MockInterface;
 use Redis;
 use Bileto\CriticalSection\Driver\RedisDriver;
@@ -23,13 +24,13 @@ class RedisDriverTest extends TestCase
     /** @var RedisDriver */
     private $driver;
 
-    /** @var Redis|MockInterface */
+    /** @var Redis|MockInterface|LegacyMockInterface */
     private $redisMock;
 
     /** @var Redis */
     private $redis;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->redisMock = Mockery::mock(Redis::class);
@@ -39,12 +40,12 @@ class RedisDriverTest extends TestCase
         $this->redis = $redis;
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         Mockery::close();
     }
 
-    public function testCanAcquireOnce()
+    public function testCanAcquireOnce(): void
     {
         $label = __FUNCTION__;
         $driver = new RedisDriver($this->redis);
@@ -52,7 +53,7 @@ class RedisDriverTest extends TestCase
         Assert::true($driver->releaseLock($label));
     }
 
-    public function testCanReleaseOnceAndOnlyOnce()
+    public function testCanReleaseOnceAndOnlyOnce(): void
     {
         $label = __FUNCTION__;
         $driver = new RedisDriver($this->redis);
@@ -61,7 +62,7 @@ class RedisDriverTest extends TestCase
         Assert::false($driver->releaseLock($label));
     }
 
-    public function testCanAcquireAndReleaseMultipleTimes()
+    public function testCanAcquireAndReleaseMultipleTimes(): void
     {
         $label = __FUNCTION__;
         $driver = new RedisDriver($this->redis);
@@ -73,7 +74,7 @@ class RedisDriverTest extends TestCase
         Assert::true($driver->releaseLock($label));
     }
 
-    public function testUnsuccessfulAcquire()
+    public function testUnsuccessfulAcquire(): void
     {
         $this->redisMock->shouldReceive('sAdd')->once()->andReturn(1);
         $this->redisMock->shouldReceive('multi')->once()->andReturnSelf();
@@ -90,7 +91,7 @@ class RedisDriverTest extends TestCase
         Assert::false($driver->acquireLock(self::TEST_LABEL));
     }
 
-    public function testUnsuccessfulReleaseBecauseOfRPush()
+    public function testUnsuccessfulReleaseBecauseOfRPush(): void
     {
         $this->redisMock->shouldReceive('sAdd')->once()->andReturn(1);
         $this->redisMock->shouldReceive('multi')->once()->andReturnSelf();
@@ -114,14 +115,14 @@ class RedisDriverTest extends TestCase
         Assert::false($driver->releaseLock(self::TEST_LABEL));
     }
 
-    public function testUnsuccessfulReleaseBecauseOfNoAcquire()
+    public function testUnsuccessfulReleaseBecauseOfNoAcquire(): void
     {
         $label = __FUNCTION__;
         $driver = new RedisDriver($this->redis);
         Assert::false($driver->releaseLock($label));
     }
 
-    public function testCannotInitializeCriticalSectionOnFirstEnter()
+    public function testCannotInitializeCriticalSectionOnFirstEnter(): void
     {
         $this->redisMock->shouldReceive('sAdd')->once()->andReturn(1);
         $this->redisMock->shouldReceive('multi')->once()->andReturnSelf();
@@ -137,7 +138,7 @@ class RedisDriverTest extends TestCase
         }, CriticalSectionException::class, "Cannot initialize redis critical section on first enter for '" . static::TEST_LABEL . "'.");
     }
 
-    public function testExceptionOnLockAcquire()
+    public function testExceptionOnLockAcquire(): void
     {
         $this->redisMock->shouldReceive('sAdd')->once()->andReturn(1);
         $this->redisMock->shouldReceive('multi')->once()->andReturnSelf();
