@@ -52,7 +52,7 @@ class PdoPgsqlDriver implements IDriver
     {
         /** @var PDOStatement|bool $statement */
         $statement = $this->pdo->prepare($query);
-        if (is_bool($statement) && $statement === false) {
+        if (is_bool($statement)) {
             return false;
         }
 

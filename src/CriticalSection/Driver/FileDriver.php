@@ -9,7 +9,7 @@ use Bileto\CriticalSection\Exception\CriticalSectionException;
 class FileDriver implements IDriver
 {
 
-    /** @var array|resource[] */
+    /** @var array<resource> */
     private $handles = [];
 
     /** @var string */
@@ -26,9 +26,11 @@ class FileDriver implements IDriver
     {
         /** @var resource|bool $handle */
         $handle = fopen($this->getFilePath($label), "w+b");
-        if (is_bool($handle) && $handle === false) {
+        if (is_bool($handle)) {
             return false;
         }
+
+        \assert(is_resource($handle));
 
         $locked = flock($handle, LOCK_EX | LOCK_NB);
         if ($locked === false) {
@@ -59,7 +61,7 @@ class FileDriver implements IDriver
 
     private function getFilePath(string $label): string
     {
-        return $this->lockFilesDir . DIRECTORY_SEPARATOR . sha1($label);
+        return $this->lockFilesDir . DIRECTORY_SEPARATOR . hash('sha256', $label);
     }
 
     /**
@@ -69,7 +71,11 @@ class FileDriver implements IDriver
     private static function createDir(string $dir): void
     {
         if (!is_dir($dir) && !@mkdir($dir, 0777, TRUE) && !is_dir($dir)) { // @ - dir may already exist
-            throw new CriticalSectionException("Unable to create directory '$dir'. " . error_get_last()['message']);
+            $lastError = error_get_last();
+
+            \assert($lastError != null);
+
+            throw new CriticalSectionException("Unable to create directory '$dir'. {$lastError['message']}" );
         }
     }
 

@@ -1,11 +1,14 @@
 parameters:
-	level: 6
+	level: 9
 	paths:
 		- src
-	autoload_files:
-		- vendor/autoload.php
-	excludes_analyse:
+	excludePaths:
 		- tests
 		- vendor
 	ignoreErrors:
 		- '#.*Redis::.*#'
+
+includes:
+	- vendor/spaze/phpstan-disallowed-calls/extension.neon
+	- vendor/spaze/phpstan-disallowed-calls/disallowed-dangerous-calls.neon
+	- vendor/spaze/phpstan-disallowed-calls/disallowed-insecure-calls.neon

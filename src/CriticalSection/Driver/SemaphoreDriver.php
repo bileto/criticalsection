@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Bileto\CriticalSection\Driver;
 
+use \SysvSemaphore;
+
 /**
  * This driver works correctly in single system environment only because semaphores are not shared on different
  * machines or in different Docker containers.
@@ -11,27 +13,27 @@ namespace Bileto\CriticalSection\Driver;
 class SemaphoreDriver implements IDriver
 {
 
-    /** @var array|resource[] */
+    /** @var array|SysvSemaphore[] */
     private $handles = [];
 
     public function acquireLock(string $label): bool
     {
         $key = self::transformLabelToIntegerKey($label);
 
-        /** @var resource|bool $semaphore */
+        /** @var SysvSemaphore|bool $semaphore */
         $semaphore = sem_get($key);
-        if (is_bool($semaphore) && $semaphore === false) {
+        if (is_bool($semaphore)) {
             return false;
+        } else {
+            $result = sem_acquire($semaphore, true);
+            if (!$result) {
+                return false;
+            }
+
+            $this->handles[$label] = $semaphore;
+
+            return true;
         }
-
-        $result = sem_acquire($semaphore, true);
-        if (!$result) {
-            return false;
-        }
-
-        $this->handles[$label] = $semaphore;
-
-        return true;
     }
 
     public function releaseLock(string $label): bool

@@ -44,7 +44,7 @@ class PdoMysqlDriver implements IDriver
 
     private static function transformLabelToKey(string $label): string
     {
-        return sha1($label);
+        return hash('sha256', $label);
     }
 
     /**
@@ -59,7 +59,7 @@ class PdoMysqlDriver implements IDriver
     {
         /** @var PDOStatement|bool $statement */
         $statement = $this->pdo->prepare($query);
-        if (is_bool($statement) && $statement === false) {
+        if (is_bool($statement)) {
             return false;
         }
 
